@@ -12,46 +12,41 @@ def index(request):
 
 def analyzer(request):
     # Get text from HTML
-    get_text = request.GET.get('text','default')
+    get_text = request.POST.get('text','default')
 
     # Create text object
     text_object = AnalyzeText(get_text)
 
     # GET Flags from html page
-    remove_punc_flag = request.GET.get('removepunc', 'off')
-    remove_new_line_flag = request.GET.get('removenewline', 'off')
-    remove_extra_space_flag = request.GET.get('removeextraspace', 'off')
-    capitalize_flag = request.GET.get('capsall', 'off')
-    character_count_flag = request.GET.get('charcount', 'off')
+    remove_punc_flag = request.POST.get('removepunc', 'off')
+    remove_new_line_flag = request.POST.get('removenewline', 'off')
+    remove_extra_space_flag = request.POST.get('removeextraspace', 'off')
+    capitalize_flag = request.POST.get('capsall', 'off')
 
     # Check flags and analyze
     if remove_punc_flag == 'on':
         analyzed_text = text_object.remove_punctuations()
         params = {'purpose': 'Removed Punctuations', 'analyzed_text': analyzed_text}
-        return render(request, 'analyzer.html', params)
+        text_object = AnalyzeText(analyzed_text)
 
-    elif remove_new_line_flag == 'on':
+    if remove_new_line_flag == 'on':
         analyzed_text = text_object.remove_newline()
         params = {'purpose': 'Removed New Lines', 'analyzed_text': analyzed_text}
-        return render(request, 'analyzer.html', params)
+        text_object = AnalyzeText(analyzed_text)
 
-    elif remove_extra_space_flag == 'on':
+    if remove_extra_space_flag == 'on':
         analyzed_text = text_object.remove_extra_space()
         params = {'purpose': 'Removed Extra Spaces', 'analyzed_text': analyzed_text}
-        return render(request, 'analyzer.html', params)
+        text_object = AnalyzeText(analyzed_text)
 
-    elif capitalize_flag == 'on':
+    if capitalize_flag == 'on':
         analyzed_text = text_object.capitalize()
         params = {'purpose': 'Capitalized', 'analyzed_text': analyzed_text}
-        return render(request, 'analyzer.html', params)
 
-    elif character_count_flag == 'on':
-        analyzed_text = "Your Character Count is {}" .format(text_object.character_counter())
-        params = {'purpose': 'Capitalized', 'analyzed_text': analyzed_text}
-        return render(request, 'analyzer.html', params)
-
-    else:
+    if remove_punc_flag != 'on' and remove_new_line_flag != 'on' and remove_extra_space_flag != 'on' and capitalize_flag != 'on':
         return HttpResponse("Error")
+
+    return render(request, 'analyzer.html', params)
 
 
 class AnalyzeText:
@@ -70,7 +65,7 @@ class AnalyzeText:
         result = ''
         print(self.text)
         for character in self.text:
-            if character != '\n':
+            if character != '\n' and character!='\r':
                 result+=character
         return result
 
@@ -87,8 +82,6 @@ class AnalyzeText:
             result+=letter.upper()
         return result
 
-    def character_counter(self):
-        return str(len(self.text))
 
 
 
@@ -103,51 +96,4 @@ class AnalyzeText:
 
 
 
-# def about(request):
-#     original_path = os.getcwd()
-#     path = 'C:\\Users\\GS-3348\\Desktop\\Django\\textutils'
-#     filename = 'one.txt'
-#     os.chdir(path)
-#
-#     for root, dirs, files in os.walk(path):
-#         for name in files:
-#             if name == filename:
-#                 with open(filename, 'r') as f:
-#                     lines = f.readlines()
-#     _about = "".join(lines)
-#     print(_about)
-#     return HttpResponse(_about)
-#
-# def navigator(request):
-#     html = '''
-#             <h1>Site Navigator </h1>
-#             <br>
-#             <ol>
-#             <li><a href = https://www.google.com/>Google</a></li>
-#             <li><a href = https://linuxize.com/>Linux</a></li>
-#             <li><a href = https://www.geeksforgeeks.org/>GeeksForGeeks</a></li>
-#             </ol>
-#             '''
-#     return HttpResponse(html)
-#
-#
-# def home(request):
-#     return HttpResponse("Home")
-#
-# def removepunc(request):
-#     # Get text from html
-#     get_text = request.GET.get('text', 'default')
-#     print(get_text)
-#     return HttpResponse("Remove Punctuation")
-#
-# def newlineremove(request):
-#     return HttpResponse("Remove New Line")
-#
-# def capitalizefirst(request):
-#     return HttpResponse("Capitalize First")
-#
-# def spaceremover(request):
-#     return HttpResponse("Space Remover")
-#
-# def charcount(request):
-#     return HttpResponse("Character Count")
+
